@@ -62,7 +62,7 @@ namespace winrt::impl
         wchar_t buffer[1];
     };
 
-    inline void release_hstring(hstring_header* handle) noexcept
+    WINRT_IMPL_NOINLINE inline void release_hstring(hstring_header* handle) noexcept
     {
         WINRT_ASSERT((handle->flags & hstring_reference_flag) == 0);
 
@@ -72,7 +72,7 @@ namespace winrt::impl
         }
     }
 
-    inline shared_hstring_header* precreate_hstring_on_heap(uint32_t length)
+    WINRT_IMPL_NOINLINE inline shared_hstring_header* precreate_hstring_on_heap(uint32_t length)
     {
         WINRT_ASSERT(length != 0);
         uint64_t bytes_required = static_cast<uint64_t>(sizeof(shared_hstring_header)) + static_cast<uint64_t>(sizeof(wchar_t)) * static_cast<uint64_t>(length);
@@ -97,7 +97,7 @@ namespace winrt::impl
         return header;
     }
 
-    inline hstring_header* create_hstring_on_heap(wchar_t const* value, uint32_t length)
+    WINRT_IMPL_NOINLINE inline hstring_header* create_hstring_on_heap(wchar_t const* value, uint32_t length)
     {
         if (!length)
         {
@@ -109,7 +109,7 @@ namespace winrt::impl
         return header;
     }
 
-    inline void create_hstring_on_stack(hstring_header& header, wchar_t const* value, uint32_t length) noexcept
+    WINRT_IMPL_NOINLINE inline void create_hstring_on_stack(hstring_header& header, wchar_t const* value, uint32_t length) noexcept
     {
         WINRT_ASSERT(value);
         WINRT_ASSERT(length != 0);
@@ -124,7 +124,7 @@ namespace winrt::impl
         header.ptr = value;
     }
 
-    inline hstring_header* duplicate_hstring(hstring_header* handle)
+    WINRT_IMPL_NOINLINE inline hstring_header* duplicate_hstring(hstring_header* handle)
     {
         if (!handle)
         {
@@ -179,7 +179,7 @@ WINRT_EXPORT namespace winrt
             m_handle(impl::duplicate_hstring(value.m_handle.get()))
         {}
 
-        hstring& operator=(hstring const& value)
+        WINRT_IMPL_NOINLINE hstring& operator=(hstring const& value)
         {
             m_handle.attach(impl::duplicate_hstring(value.m_handle.get()));
             return*this;
@@ -198,7 +198,7 @@ WINRT_EXPORT namespace winrt
             hstring(std::wstring_view(value))
         {}
 
-        hstring(wchar_t const* value, size_type size) :
+        WINRT_IMPL_NOINLINE hstring(wchar_t const* value, size_type size) :
             m_handle(impl::create_hstring_on_heap(value, size))
         {}
 
@@ -415,23 +415,23 @@ WINRT_EXPORT namespace winrt
         return detach_abi(object);
     }
 
-    inline void copy_from_abi(hstring& object, void* value)
+    WINRT_IMPL_NOINLINE inline void copy_from_abi(hstring& object, void* value)
     {
         attach_abi(object, impl::duplicate_hstring(static_cast<impl::hstring_header*>(value)));
     }
 
-    inline void copy_to_abi(hstring const& object, void*& value)
+    WINRT_IMPL_NOINLINE inline void copy_to_abi(hstring const& object, void*& value)
     {
         WINRT_ASSERT(value == nullptr);
         value = impl::duplicate_hstring(static_cast<impl::hstring_header*>(get_abi(object)));
     }
 
-    inline void* detach_abi(std::wstring_view const& value)
+    WINRT_IMPL_NOINLINE inline void* detach_abi(std::wstring_view const& value)
     {
         return impl::create_hstring_on_heap(value.data(), static_cast<uint32_t>(value.size()));
     }
 
-    inline void* detach_abi(wchar_t const* const value)
+    WINRT_IMPL_NOINLINE inline void* detach_abi(wchar_t const* const value)
     {
         return impl::create_hstring_on_heap(value, static_cast<uint32_t>(wcslen(value)));
     }
@@ -526,7 +526,7 @@ namespace winrt::impl
     };
 
     template <typename T>
-    inline hstring hstring_convert(T value)
+    WINRT_IMPL_NOINLINE hstring hstring_convert(T value)
     {
         static_assert(std::is_arithmetic_v<T>);
         char temp[32];
@@ -657,7 +657,7 @@ WINRT_EXPORT namespace winrt
         return result.to_hstring();
     }
 
-    inline std::string to_string(std::wstring_view value)
+    WINRT_IMPL_NOINLINE inline std::string to_string(std::wstring_view value)
     {
         int const size = WINRT_IMPL_WideCharToMultiByte(65001 /*CP_UTF8*/, 0, value.data(), static_cast<int32_t>(value.size()), nullptr, 0, nullptr, nullptr);
 
