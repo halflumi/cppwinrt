@@ -14,8 +14,6 @@ namespace
     //
     // Just some quick tests to make sure that coroutines compile and work with C++20 modules.
     // Taken from async_throw in test
-    // IAsyncOperation and IAsyncOperationWithProgress are affected by compiler bugs so disabled for now:
-    // https://developercommunity.visualstudio.com/t/identifier-not-found-with-default-membe/1376824
     //
 
     IAsyncAction Action()
@@ -30,7 +28,6 @@ namespace
         throw hresult_invalid_argument(L"Async");
     }
 
-#if 0
     IAsyncOperation<int> Operation()
     {
         co_await 10ms;
@@ -44,7 +41,6 @@ namespace
         throw hresult_invalid_argument(L"Async");
         co_return 1;
     }
-#endif
 
     template <typename F>
     void Check(F make)
@@ -91,8 +87,6 @@ TEST_CASE("async_throw")
 {
     Check(Action);
     Check(ActionWithProgress);
-#if 0
     Check(Operation);
     Check(OperationWithProgress);
-#endif
 }
