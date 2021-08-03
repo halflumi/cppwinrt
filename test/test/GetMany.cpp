@@ -15,51 +15,53 @@ using namespace Windows::Foundation::Collections;
 
 namespace
 {
+    // This iterator may only be advanced once, ensuring the GetMany complexity optimization
+    // is actually enforced with this test.
+
+    template <typename T>
+    struct generator_container
+    {
+        explicit generator_container(IIterator<T> const& first) : m_current(first)
+        {
+            if (!m_current.HasCurrent())
+            {
+                m_current = nullptr;
+            }
+        }
+
+        IIterator<T> begin() const { return m_current; }
+        IIterator<T> end() const { return nullptr; }
+
+    private:
+        IIterator<T> m_current;
+    };
+
+    template <typename T>
+    struct generator : implements<generator<T>, IIterable<T>>, iterable_base<generator<T>, T>
+    {
+        explicit generator(IIterator<T> const& first) : m_container(first)
+        {
+        }
+
+        auto& get_container() noexcept
+        {
+            return m_container;
+        }
+
+        auto& get_container() const noexcept
+        {
+            return m_container;
+        }
+
+    private:
+        generator_container<T> m_container;
+    };
+
     template<typename T>
     IIterator<T> single_threaded_generator(std::vector<T>&& values = {})
     {
-        // This iterator may only be advanced once, ensuring the GetMany complexity optimization
-        // is actually enforced with this test.
-
-        struct generator_container
-        {
-            explicit generator_container(IIterator<T> const& first) : m_current(first)
-            {
-                if (!m_current.HasCurrent())
-                {
-                    m_current = nullptr;
-                }
-            }
-
-            IIterator<T> begin() const { return m_current; }
-            IIterator<T> end() const { return nullptr; }
-
-        private:
-            IIterator<T> m_current;
-        };
-
-        struct generator : implements<generator, IIterable<T>>, iterable_base<generator, T>
-        {
-            explicit generator(IIterator<T> const& first) : m_container(first)
-            {
-            }
-
-            auto& get_container() noexcept
-            {
-                return m_container;
-            }
-
-            auto& get_container() const noexcept
-            {
-                return m_container;
-            }
-
-        private:
-            generator_container m_container;
-        };
-
         auto v = single_threaded_vector<T>(std::move(values));
-        return make<generator>(v.First()).First();
+        return make<generator<T>>(v.First()).First();
     }
 }
 

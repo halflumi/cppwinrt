@@ -1,4 +1,7 @@
 #include "pch.h"
+#if defined(WINRT_IMPL_COROUTINES) && not defined(_RESUMABLE_FUNCTIONS_SUPPORTED)
+#define _RESUMABLE_FUNCTIONS_SUPPORTED
+#endif
 #include <pplawait.h>
 
 using namespace concurrency;

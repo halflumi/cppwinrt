@@ -39,6 +39,7 @@
     <ProjectGuid>{FB239623-7D19-4025-BCEA-B43298D4A315}</ProjectGuid>
     <RootNamespace>cppwinrt</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <DoNotLinkClangLib>true</DoNotLinkClangLib>
   </PropertyGroup>
   <Import Project="$(SolutionDir)\cppwinrt.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

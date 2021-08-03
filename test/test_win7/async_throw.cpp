@@ -6,32 +6,34 @@ using namespace std::chrono_literals;
 
 namespace
 {
+    using namespace winrt;
+
     //
     // Checks that exceptions are correctly captured and propagated.
     //
 
     IAsyncAction Action()
     {
-        co_await 10ms;
+        co_await resume_after(10ms);
         throw hresult_invalid_argument(L"Async");
     }
 
     IAsyncActionWithProgress<int> ActionWithProgress()
     {
-        co_await 10ms;
+        co_await resume_after(10ms);
         throw hresult_invalid_argument(L"Async");
     }
 
     IAsyncOperation<int> Operation()
     {
-        co_await 10ms;
+        co_await resume_after(10ms);
         throw hresult_invalid_argument(L"Async");
         co_return 1;
     }
 
     IAsyncOperationWithProgress<int, int> OperationWithProgress()
     {
-        co_await 10ms;
+        co_await resume_after(10ms);
         throw hresult_invalid_argument(L"Async");
         co_return 1;
     }

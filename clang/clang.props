@@ -1,0 +1,20 @@
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <!-- Set common MSBuild properties and item metadata for Clang toolchain -->
+
+  <PropertyGroup>
+    <CLToolExe>clang-cl.exe</CLToolExe>
+    <CLToolPath>C:\Program Files\LLVM\bin</CLToolPath>
+    <_ClExternalIncludesSupported>false</_ClExternalIncludesSupported>
+  </PropertyGroup>
+
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalOptions>-Wno-unused-command-line-argument -fno-delayed-template-parsing -Xclang -fcoroutines-ts -mcx16 -D_SILENCE_CLANG_COROUTINE_MESSAGE</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies Condition="'$(DoNotLinkClangLib)'==''">%(AdditionalDependencies);$(OutDir)\clang.lib</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  
+</Project>

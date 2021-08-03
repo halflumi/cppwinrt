@@ -7,6 +7,14 @@
 using namespace winrt;
 using namespace Windows::System;
 
+namespace winrt::Windows::System
+{
+    inline auto operator co_await(Windows::System::DispatcherQueue const& dispatcher)
+    {
+        return resume_foreground(dispatcher);
+    }
+}
+
 namespace
 {
     fire_and_forget Async(DispatcherQueue queue)

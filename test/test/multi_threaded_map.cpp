@@ -63,7 +63,7 @@ namespace
         }
         else
         {
-            return static_cast<IObservableVector<K, V>>(winrt::make<custom_observable_map<K, V, Container>>(std::move(values)));
+            return static_cast<IObservableMap<K, V>>(winrt::make<custom_observable_map<K, V, Container>>(std::move(values)));
         }
     }
 
@@ -159,6 +159,8 @@ namespace
         {
             auto guard = concurrency_guard::lock_const();
             concurrency_guard::call_hook(collection_action::lookup);
+            //static_assert(!std::is_same_v<typename inner::iterator, void>);
+            (std::enable_if_t<!std::is_same_v<typename inner::iterator, void>>) printf("");
             return { this, inner::find(key) };
         }
     };

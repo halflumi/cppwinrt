@@ -116,6 +116,11 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\clang\clang.vcxproj">
+      <Project>{d892d2c4-2055-46a3-80a3-1bd3dc0f99e5}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{D613FB39-5035-4043-91E2-BAB323908AF4}</ProjectGuid>

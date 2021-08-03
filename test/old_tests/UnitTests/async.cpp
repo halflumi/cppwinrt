@@ -14,9 +14,11 @@ using namespace std::chrono;
 
 namespace
 {
+    using namespace winrt;
+
     IAsyncAction NoSuspend_IAsyncAction()
     {
-        co_await 0s;
+        co_await resume_after(0s);
 
         auto cancel = co_await get_cancellation_token();
 
@@ -28,7 +30,7 @@ namespace
 
     IAsyncActionWithProgress<double> NoSuspend_IAsyncActionWithProgress()
     {
-        co_await 0s;
+        co_await resume_after(0s);
 
         auto cancel = co_await get_cancellation_token();
 
@@ -40,7 +42,7 @@ namespace
 
     IAsyncOperation<uint32_t> NoSuspend_IAsyncOperation()
     {
-        co_await 0s;
+        co_await resume_after(0s);
 
         auto cancel = co_await get_cancellation_token();
 
@@ -54,7 +56,7 @@ namespace
 
     IAsyncOperationWithProgress<uint64_t, uint64_t> NoSuspend_IAsyncOperationWithProgress()
     {
-        co_await 0s;
+        co_await resume_after(0s);
 
         auto cancel = co_await get_cancellation_token();
 
@@ -1403,10 +1405,10 @@ namespace
 {
     IAsyncAction test_resume_after(uint32_t & before, uint32_t & after)
     {
-        co_await 0s; // should not suspend
+        co_await resume_after(0s); // should not suspend
         before = GetCurrentThreadId();
 
-        co_await 1us; // should suspend and resume on background thread
+        co_await resume_after(1us); // should suspend and resume on background thread
         after = GetCurrentThreadId();
     }
 }
