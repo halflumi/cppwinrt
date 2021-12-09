@@ -1,5 +1,9 @@
-#include "pch.h"
+#include "winrt/Windows.Data.Json.h"
+#include "winrt/Windows.Foundation.h"
 #include <format>
+#include "catch.hpp"
+
+import winrt;
 
 struct stringable : winrt::implements<stringable, winrt::Windows::Foundation::IStringable>
 {

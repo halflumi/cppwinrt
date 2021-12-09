@@ -1,4 +1,7 @@
-#include "pch.h"
+#include <intrin.h>
+#include "catch.hpp"
+
+import winrt;
 
 using namespace winrt;
 using namespace Windows::Foundation;
