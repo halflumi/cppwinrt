@@ -16,7 +16,7 @@ WINRT_EXPORT namespace winrt
         {
         }
 
-        handle_type& operator=(handle_type&& other) & noexcept
+        handle_type& operator=(handle_type&& other) noexcept
         {
             if (this != &other)
             {
@@ -52,7 +52,7 @@ WINRT_EXPORT namespace winrt
 
         type* put() noexcept
         {
-            WINRT_ASSERT(m_value == T::invalid());
+            close();
             return &m_value;
         }
 

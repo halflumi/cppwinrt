@@ -179,16 +179,16 @@ WINRT_EXPORT namespace winrt
             m_handle(impl::duplicate_hstring(value.m_handle.get()))
         {}
 
-        hstring& operator=(hstring const& value) &
+        hstring& operator=(hstring const& value)
         {
             m_handle.attach(impl::duplicate_hstring(value.m_handle.get()));
             return*this;
         }
 
         hstring(hstring&&) noexcept = default;
-        hstring& operator=(hstring&&) & = default;
+        hstring& operator=(hstring&&) = default;
         hstring(std::nullptr_t) = delete;
-        hstring& operator=(std::nullptr_t) & = delete;
+        hstring& operator=(std::nullptr_t) = delete;
 
         hstring(std::initializer_list<wchar_t> value) :
             hstring(value.begin(), static_cast<uint32_t>(value.size()))
@@ -206,17 +206,17 @@ WINRT_EXPORT namespace winrt
             hstring(value.data(), static_cast<size_type>(value.size()))
         {}
 
-        hstring& operator=(std::wstring_view const& value) &
+        hstring& operator=(std::wstring_view const& value)
         {
             return *this = hstring{ value };
         }
 
-        hstring& operator=(wchar_t const* const value) &
+        hstring& operator=(wchar_t const* const value)
         {
             return *this = hstring{ value };
         }
 
-        hstring& operator=(std::initializer_list<wchar_t> value) &
+        hstring& operator=(std::initializer_list<wchar_t> value)
         {
             return *this = hstring{ value };
         }
@@ -326,7 +326,39 @@ WINRT_EXPORT namespace winrt
         {
             return rend();
         }
+        
+#ifdef __cpp_lib_starts_ends_with
+        bool starts_with(wchar_t const value) const noexcept
+        {
+            return operator std::wstring_view().starts_with(value);
+        }
 
+        bool starts_with(std::wstring_view const another) const noexcept
+        {
+            return operator std::wstring_view().starts_with(another);
+        }
+
+        bool starts_with(const wchar_t* const pointer) const noexcept
+        {
+            return operator std::wstring_view().starts_with(pointer);
+        }
+
+        bool ends_with(wchar_t const value) const noexcept
+        {
+            return operator std::wstring_view().ends_with(value);
+        }
+
+        bool ends_with(std::wstring_view const another) const noexcept
+        {
+            return operator std::wstring_view().ends_with(another);
+        }
+
+        bool ends_with(const wchar_t* const pointer) const noexcept
+        {
+            return operator std::wstring_view().ends_with(pointer);
+        }
+#endif
+        
         bool empty() const noexcept
         {
             return !m_handle;
@@ -404,6 +436,11 @@ WINRT_EXPORT namespace winrt
         return impl::create_hstring_on_heap(value, static_cast<uint32_t>(wcslen(value)));
     }
 }
+
+#ifdef __cpp_lib_format
+template<>
+struct std::formatter<winrt::hstring, wchar_t> : std::formatter<std::wstring_view, wchar_t> {};
+#endif
 
 namespace winrt::impl
 {

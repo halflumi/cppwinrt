@@ -3,7 +3,7 @@ WINRT_EXPORT namespace winrt
 {
 #if defined (WINRT_NO_MODULE_LOCK)
 
-    // Defining WINRT_NO_MODULE_LOCK is appropriate for apps (executables) that don't implement something like DllCanUnloadNow
+    // Defining WINRT_NO_MODULE_LOCK is appropriate for apps (executables) or pinned DLLs (that don't support unloading)
     // and can thus avoid the synchronization overhead imposed by the default module lock.
 
     constexpr auto get_module_lock() noexcept
@@ -18,6 +18,11 @@ WINRT_EXPORT namespace winrt
             constexpr uint32_t operator--() noexcept
             {
                 return 0;
+            }
+
+            constexpr explicit operator bool() noexcept
+            {
+                return true;
             }
         };
 
@@ -209,8 +214,10 @@ WINRT_EXPORT namespace winrt
         com_ptr<impl::IAgileReference> m_ref;
     };
 
+    template<typename T> agile_ref(T const&)->agile_ref<impl::wrapped_type_t<T>>;
+
     template <typename T>
-    agile_ref<T> make_agile(T const& object)
+    agile_ref<impl::wrapped_type_t<T>> make_agile(T const& object)
     {
         return object;
     }

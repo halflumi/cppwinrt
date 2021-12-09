@@ -57,13 +57,13 @@ WINRT_EXPORT namespace winrt
             release_ref();
         }
 
-        com_ptr& operator=(com_ptr const& other) & noexcept
+        com_ptr& operator=(com_ptr const& other) noexcept
         {
             copy_ref(other.m_ptr);
             return*this;
         }
 
-        com_ptr& operator=(com_ptr&& other) & noexcept
+        com_ptr& operator=(com_ptr&& other) noexcept
         {
             if (this != &other)
             {
@@ -75,14 +75,14 @@ WINRT_EXPORT namespace winrt
         }
 
         template <typename U>
-        com_ptr& operator=(com_ptr<U> const& other) & noexcept
+        com_ptr& operator=(com_ptr<U> const& other) noexcept
         {
             copy_ref(other.m_ptr);
             return*this;
         }
 
         template <typename U>
-        com_ptr& operator=(com_ptr<U>&& other) & noexcept
+        com_ptr& operator=(com_ptr<U>&& other) noexcept
         {
             release_ref();
             m_ptr = std::exchange(other.m_ptr, {});
@@ -111,7 +111,7 @@ WINRT_EXPORT namespace winrt
 
         type** put() noexcept
         {
-            WINRT_ASSERT(m_ptr == nullptr);
+            release_ref();
             return &m_ptr;
         }
 

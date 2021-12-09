@@ -40,6 +40,7 @@
     <RootNamespace>unittests</RootNamespace>
     <ProjectName>test_cpp20</ProjectName>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <CppWinRTLanguageStandard>latest</CppWinRTLanguageStandard>
   </PropertyGroup>
   <Import Project="$(SolutionDir)\cppwinrt.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -317,6 +318,9 @@
   <ItemGroup>
     <ClCompile Include="$(CppWinRTDir)winrt\winrt.ixx" />
     <ClCompile Include="async.cpp" />
+    <ClCompile Include="await_completed.cpp" />
+    <ClCompile Include="format.cpp" />
+    <ClCompile Include="hstring.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ranges.cpp" />
   </ItemGroup>

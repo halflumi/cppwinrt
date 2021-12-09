@@ -75,7 +75,7 @@ Copyright (C) Microsoft Corporation. All rights reserved.
             $(AfterMidlTargets);
             GetCppWinRTMdMergeInputs;
             CppWinRTMergeProjectWinMDInputs;
-            GetResolvedWinMD;
+            CppWinRTGetResolvedWinMD;
             CppWinRTCopyWinMDToOutputDirectory;
         </AfterMidlTargets>
         <ResolveReferencesDependsOn>
@@ -104,6 +104,12 @@ Copyright (C) Microsoft Corporation. All rights reserved.
         <CleanDependsOn>
             $(CleanDependsOn);CppWinRTClean
         </CleanDependsOn>
+        <GetTargetPathDependsOn>
+            $(GetTargetPathDependsOn);CppWinRTGetResolvedWinMD
+        </GetTargetPathDependsOn>
+        <GetPackagingOutputsDependsOn>
+            $(GetPackagingOutputsDependsOn);CppWinRTGetResolvedWinMD
+        </GetPackagingOutputsDependsOn>
 
     </PropertyGroup>
 
@@ -186,14 +192,19 @@ Copyright (C) Microsoft Corporation. All rights reserved.
 
     <!-- Target used only to evaluate CppWinRTGenerateWindowsMetadata if it doesn't already have a value -->
     <Target Name="CppWinRTComputeGenerateWindowsMetadata"
-            DependsOnTargets="CppWinRTComputeXamlGeneratedMidlInputs;GetCppWinRTProjectWinMDReferences;$(CppWinRTComputeGenerateWindowsMetadataDependsOn)">
+            DependsOnTargets="GetCppWinRTProjectWinMDReferences;CppWinRTComputeXamlGeneratedMidlInputs;$(CppWinRTComputeGenerateWindowsMetadataDependsOn)">
+
+        <ItemGroup>
+            <_IncludedIdlForComputeGenerateWindowsMetadata Remove="@(_IncludedIdlForComputeGenerateWindowsMetadata)" />
+            <_IncludedIdlForComputeGenerateWindowsMetadata Include="@(Midl)" Condition="'%(Midl.ExcludedFromBuild)' != 'true'" />
+        </ItemGroup>
 
         <PropertyGroup>
             <!-- For static libraries, only idl causes a winmd to be generated. 
                  For exe/dll, static libraries that produce a WinMD will be merged, 
                  so they also cause a WinMD to be generated-->
-            <CppWinRTGenerateWindowsMetadata Condition="'$(ConfigurationType)' != 'StaticLibrary' AND '@(CppWinRTStaticProjectWinMDReferences)@(Midl)'!= ''">true</CppWinRTGenerateWindowsMetadata>
-            <CppWinRTGenerateWindowsMetadata Condition="'$(ConfigurationType)' == 'StaticLibrary' AND '@(Midl)'!= ''">true</CppWinRTGenerateWindowsMetadata>
+            <CppWinRTGenerateWindowsMetadata Condition="'$(ConfigurationType)' != 'StaticLibrary' AND '@(CppWinRTStaticProjectWinMDReferences)@(_IncludedIdlForComputeGenerateWindowsMetadata)'!= ''">true</CppWinRTGenerateWindowsMetadata>
+            <CppWinRTGenerateWindowsMetadata Condition="'$(ConfigurationType)' == 'StaticLibrary' AND '@(_IncludedIdlForComputeGenerateWindowsMetadata)'!= ''">true</CppWinRTGenerateWindowsMetadata>
 
             <!-- At this point we checked all cases where we do generate a WinMD.
                  The remaining option is no WinMD. -->
@@ -202,7 +213,7 @@ Copyright (C) Microsoft Corporation. All rights reserved.
 
     </Target>
 
-    <Target Name="ComputeGetResolvedWinMD"
+    <Target Name="CppWinRTComputeGetResolvedWinMD"
             Condition="'$(CppWinRTGenerateWindowsMetadata)' == ''">
         <!-- If CppWinRTGenerateWindowsMetadata is not defined, compute it.-->
         <!-- We use Calltarget, so we don't run anything including DependsOnTargets
@@ -210,37 +221,13 @@ Copyright (C) Microsoft Corporation. All rights reserved.
         <CallTarget Targets="CppWinRTComputeGenerateWindowsMetadata" />
     </Target>
 
-    <!-- This target overrides the GetResolvedWinMD target used to resolve the WinMD for native projects
+    <!-- This target hooks into the GetResolvedWinMD target used to resolve the WinMD for native projects
          so it is aware of the C++/WinRT generated WinMD.
-         Since not every project that consumes C++/WinRT uses it to generate a WinMD,
-         we need to keep the CX logic as well. -->
-    <Target Name="GetResolvedWinMD"
-            DependsOnTargets="ComputeGetResolvedWinMD"
+         There is no good way to hook GetResolvedWinMD so we use BeforeTargets. -->
+    <Target Name="CppWinRTGetResolvedWinMD"
+            DependsOnTargets="CppWinRTComputeGetResolvedWinMD"
+            BeforeTargets="GetResolvedWinMD"
             Returns="@(WinMDFullPath)">
-
-        <!-- Copied from the CX GetResolvedWinMD target in Microsoft.CppBuild.targets -->
-        <ItemGroup>
-            <!-- To evaluate the GenerateWindowsMetadata value we need @(Link) to contains at least one element-->
-            <Link Include="tmp" Condition="'@(Link)'==''">
-                <DeleteSoon>true</DeleteSoon>
-            </Link>
-
-            <!-- Condition is modified to only do this if CppWinRTGenerateWindowsMetadata is not true. -->
-            <WinMDFullPath Condition="'%(Link.GenerateWindowsMetadata)' == 'true' AND '$(CppWinRTGenerateWindowsMetadata)' != 'true'"
-                           Include="@(Link->Metadata('WindowsMetadataFile')->FullPath()->Distinct()->ClearMetadata())">
-                <TargetPath>$([System.IO.Path]::GetFileName('%(Link.WindowsMetadataFile)'))</TargetPath>
-                <Primary>true</Primary>
-            </WinMDFullPath>
-
-            <WinMDFullPath>
-                <Implementation>$(WinMDImplementationPath)$(TargetName)$(TargetExt)</Implementation>
-                <FileType>winmd</FileType>
-                <WinMDFile>true</WinMDFile>
-                <ProjectType>$(ConfigurationType)</ProjectType>
-            </WinMDFullPath>
-
-            <Link Remove="@(Link)" Condition="'%(Link.DeleteSoon)' == 'true'" />
-        </ItemGroup>
 
         <!-- Add C++/WinRT primary WinMD to the WinMDFullPath if CppWinRTGenerateWindowsMetadata is true -->
         <ItemGroup>
@@ -363,11 +350,11 @@ Copyright (C) Microsoft Corporation. All rights reserved.
 
     <!-- Calculates the input files and metadata directories to be passed to MdMerge -->
     <Target Name="GetCppWinRTMdMergeInputs"
-                DependsOnTargets="CppWinRTComputeXamlGeneratedMidlInputs;CppWinRTResolveReferences;"
-                Returns="@(CppWinRTMdMergeMetadataDirectories);@(CppWinRTMdMergeInputs)">
+            DependsOnTargets="CppWinRTResolveReferences"
+            Returns="@(CppWinRTMdMergeMetadataDirectories);@(CppWinRTMdMergeInputs)">
         <ItemGroup>
             <_MdMergeInputs Remove="@(_MdMergeInputs)"/>
-            <_MdMergeInputs Include="@(Midl)">
+            <_MdMergeInputs Include="@(Midl)" Condition="'%(Midl.ExcludedFromBuild)' != 'true'">
                 <WinMDPath>%(Midl.OutputDirectory)%(Midl.MetadataFileName)</WinMDPath>
                 <MdMergeOutputFile>$(CppWinRTProjectWinMD)</MdMergeOutputFile>
             </_MdMergeInputs>
@@ -405,7 +392,7 @@ Copyright (C) Microsoft Corporation. All rights reserved.
         <ItemGroup>
             <Midl Remove="$(XamlMetaDataProviderIdl)" />
             <Midl Include="$(XamlMetaDataProviderIdl)">
-                <DisableReferences Condition="$(_DisableReferences)">>true</DisableReferences>
+                <DisableReferences Condition="$(_DisableReferences)">true</DisableReferences>
             </Midl>
         </ItemGroup>
     </Target>
@@ -889,7 +876,7 @@ $(XamlMetaDataProviderPch)
     <ItemDefinitionGroup>
         <ClCompile>
             <AdditionalOptions>%(AdditionalOptions) /bigobj</AdditionalOptions>
-            <AdditionalOptions Condition="'%(ClCompile.LanguageStandard)' == 'stdcpp17'">%(AdditionalOptions) /await</AdditionalOptions>
+            <AdditionalOptions Condition="'%(ClCompile.LanguageStandard)' == 'stdcpp17' And '$(CppWinRTEnableLegacyCoroutines)' != 'false'">%(AdditionalOptions) /await</AdditionalOptions>
             <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(GeneratedFilesDir)</AdditionalIncludeDirectories>
         </ClCompile>
         <Midl Condition="'$(CppWinRTModernIDL)' != 'false'">

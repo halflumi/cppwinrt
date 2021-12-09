@@ -296,6 +296,7 @@
     <ClCompile Include="async_completed.cpp" />
     <ClCompile Include="async_propagate_cancel.cpp" />
     <ClCompile Include="async_ref_result.cpp" />
+    <ClCompile Include="await_completed.cpp" />
     <ClCompile Include="box_array.cpp" />
     <ClCompile Include="box_delegate.cpp" />
     <ClCompile Include="box_guid.cpp" />
@@ -335,6 +336,7 @@
     <ClCompile Include="delegates.cpp" />
     <ClCompile Include="disconnected.cpp" />
     <ClCompile Include="enum.cpp" />
+    <ClCompile Include="guid.cpp" />
     <ClCompile Include="hresult_class_not_registered.cpp" />
     <ClCompile Include="error_info.cpp" />
     <ClCompile Include="event_deferral.cpp" />
@@ -398,6 +400,7 @@
     <ClCompile Include="main.cpp">
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="memory_buffer.cpp" />
     <ClCompile Include="module_lock_dll.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
@@ -415,6 +418,8 @@
     <ClCompile Include="notify_awaiter.cpp" />
     <ClCompile Include="no_make_detection.cpp" />
     <ClCompile Include="numerics.cpp" />
+    <ClCompile Include="observable_index_of.cpp" />
+    <ClCompile Include="optional.cpp" />
     <ClCompile Include="out_params.cpp" />
     <ClCompile Include="out_params_abi.cpp" />
     <ClCompile Include="out_params_bad.cpp" />
